@@ -1,15 +1,18 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Login - HemoLife</title>
-</head>
-<body>
-    <h2>Login HemoLife</h2>
-    <form action="/usuarios/login" method="POST">
-        <input type="email" name="email" placeholder="Seu e-mail" required><br>
-        <input type="password" name="senha" placeholder="Sua senha" required><br>
-        <button type="submit">Entrar</button>
-    </form>
-    <p>Não tem conta? <a href="/usuarios/cadastrar">Cadastre-se aqui</a></p>
-</body>
-</html>
+<h2>Login</h2>
+
+{% with mensagens = get_flashed_messages() %}
+    {% if mensagens %}
+        {% for msg in mensagens %}
+            <p>{{ msg }}</p>
+        {% endfor %}
+    {% endif %}
+{% endwith %}
+
+<form method="POST">
+    Email: <input type="email" name="email" required><br>
+    Senha: <input type="password" name="senha" required><br>
+
+    <button type="submit">Entrar</button>
+</form>
+
+<a href="{{ url_for('usuarios.cadastrar') }}">Cadastrar</a>

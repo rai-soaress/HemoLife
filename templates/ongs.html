@@ -1,0 +1,17 @@
+<h2>ONGs</h2>
+
+<ul>
+    {% for ong in ongs %}
+        <li>
+            {{ ong.nome }}
+
+            {% if ong.id in inscritas %}
+                <a href="{{ url_for('usuarios.cancelar', id=ong.id) }}">Sair</a>
+            {% else %}
+                <a href="{{ url_for('usuarios.inscrever', id=ong.id) }}">Entrar</a>
+            {% endif %}
+        </li>
+    {% endfor %}
+</ul>
+
+<a href="{{ url_for('usuarios.home') }}">Voltar</a>

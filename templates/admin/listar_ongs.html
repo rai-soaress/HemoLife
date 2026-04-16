@@ -1,0 +1,16 @@
+<h2>Lista de ONGs</h2>
+
+<a href="{{ url_for('usuarios.cadastrar_ong') }}">Nova ONG</a>
+
+<ul>
+    {% for ong in ongs %}
+        <li>
+            {{ ong.nome }} - {{ ong.email }}
+
+            <a href="{{ url_for('usuarios.editar_ong', id=ong.id) }}">Editar</a>
+            <a href="{{ url_for('usuarios.deletar_ong', id=ong.id) }}">Excluir</a>
+        </li>
+    {% endfor %}
+</ul>
+
+<a href="{{ url_for('usuarios.home') }}">Voltar</a>

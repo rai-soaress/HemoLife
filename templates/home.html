@@ -1,104 +1,12 @@
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Home - HemoLife</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-        }
+<h2>Home</h2>
 
-        .container {
-            background-color: white;
-            padding: 40px;
-            border-radius: 15px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            width: 450px; 
-            text-align: center;
-        }
+<p>Bem-vindo, {{ current_user.nome }}</p>
 
-        h1 {
-            color: #333;
-            margin-bottom: 20px;
-        }
+<a href="{{ url_for('usuarios.ongs') }}">Ver ONGs</a><br>
+<a href="{{ url_for('usuarios.minhas_ongs') }}">Minhas ONGs</a><br>
 
-        p {
-            color: #666;
-            margin-bottom: 30px;
-        }
+{% if current_user.perfil == 'admin' %}
+    <a href="{{ url_for('usuarios.listar_ongs') }}">Gerenciar ONGs</a><br>
+{% endif %}
 
-       
-        .buttons-container {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 25px;
-        }
-
-        .btn {
-            border: none;
-            color: white;
-            padding: 15px 10px;
-            text-align: center;
-            text-decoration: none;
-            display: inline-block;
-            font-size: 14px; 
-            font-weight: bold;
-            border-radius: 8px;
-            cursor: pointer;
-            width: 31%; 
-            transition: background-color 0.3s;
-            text-transform: uppercase;
-        }
-
-        .btn-doador {
-            background-color: #d9534f; 
-        }
-        .btn-doador:hover {
-            background-color: #c9302c;
-        }
-
-        .btn-receptor {
-            background-color: #5bc0de;
-        }
-        .btn-receptor:hover {
-            background-color: #31b0d5;
-        }
-
-     
-        .btn-ong {
-            background-color: #5cb85c; 
-        }
-        .btn-ong:hover {
-            background-color: #449d44;
-        }
-
-        .logout {
-            color: #888;
-            text-decoration: none;
-            font-size: 12px;
-        }
-    </style>
-</head>
-<body>
-
-    <div class="container">
-        <h1>Bem-vindo ao HemoLife, samuel!</h1>
-        <p>O que você deseja fazer hoje?</p>
-        
-        <div class="buttons-container">
-            <a href="#" class="btn btn-doador">QUERO SER DOADOR</a>
-            <a href="#" class="btn btn-receptor">QUERO SER RECEPTOR</a>
-            <a href="#" class="btn btn-ong">CRIAR UMA ONG</a> </div>
-
-        <a href="#" class="logout">Sair do sistema</a>
-    </div>
-
-</body>
-</html>
+<a href="{{ url_for('usuarios.logout') }}">Sair</a>

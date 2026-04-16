@@ -1,0 +1,9 @@
+<h2>Minhas ONGs</h2>
+
+<ul>
+    {% for ong in ongs %}
+        <li>{{ ong.nome }}</li>
+    {% endfor %}
+</ul>
+
+<a href="{{ url_for('usuarios.home') }}">Voltar</a>

@@ -1,0 +1,14 @@
+<h2>Lista de ONGs</h2>
+
+<a href="/ong/cadastrar">Nova ONG</a>
+
+<ul>
+    {% for ong in ongs %}
+        <li>
+            {{ ong.nome }} - {{ ong.email }}
+
+            <a href="/ong/editar/{{ ong.id }}">Editar</a>
+            <a href="/ong/deletar/{{ ong.id }}">Excluir</a>
+        </li>
+    {% endfor %}
+</ul>
