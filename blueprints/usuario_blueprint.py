@@ -8,8 +8,6 @@ from dao.inscricao_dao import InscricaoDAO
 usuario_bp = Blueprint('usuarios', __name__)
 dao = UsuarioDAO()
 
-
-# -------- LOGIN --------
 @usuario_bp.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
@@ -27,7 +25,6 @@ def login():
     return render_template('login.html')
 
 
-# -------- CADASTRO --------
 @usuario_bp.route('/cadastrar', methods=['GET', 'POST'])
 def cadastrar():
     if request.method == 'POST':
@@ -43,22 +40,17 @@ def cadastrar():
     return render_template('cadastro.html')
 
 
-# -------- HOME --------
 @usuario_bp.route('/home')
 @login_required
 def home():
     return render_template('home.html')
 
-
-# -------- LOGOUT --------
 @usuario_bp.route('/logout')
 @login_required
 def logout():
     logout_user()
     return redirect(url_for('usuarios.login'))
 
-
-# ================= ADMIN =================
 
 @usuario_bp.route('/admin/ongs')
 @login_required
@@ -118,8 +110,6 @@ def deletar_ong(id):
     OngDAO().deletar_ong(id)
     return redirect(url_for('usuarios.listar_ongs'))
 
-
-# ================= USUÁRIO =================
 
 @usuario_bp.route('/ongs')
 @login_required

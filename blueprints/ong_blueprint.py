@@ -6,7 +6,6 @@ bp_ong = Blueprint('ong', __name__, url_prefix='/ong')
 dao = OngDAO()
 
 
-# login
 @bp_ong.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'GET':
@@ -23,7 +22,7 @@ def login():
     return "Email ou senha inválidos"
 
 
-# cadastro
+
 @bp_ong.route('/cadastrar', methods=['GET', 'POST'])
 def cadastrar():
     if request.method == 'GET':
@@ -39,14 +38,14 @@ def cadastrar():
     return redirect('/ong/login')
 
 
-# listar
+
 @bp_ong.route('/listar')
 def listar():
     ongs = dao.listar_ongs()
     return render_template('ong_template/listar.html', ongs=ongs)
 
 
-# editar
+
 @bp_ong.route('/editar/<int:id>', methods=['GET', 'POST'])
 def editar(id):
     ong = dao.buscar_por_id(id)
@@ -63,7 +62,7 @@ def editar(id):
     return redirect('/ong/listar')
 
 
-# deletar
+
 @bp_ong.route('/deletar/<int:id>')
 def deletar(id):
     dao.deletar_ong(id)
