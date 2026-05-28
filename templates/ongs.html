@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>ONGs</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='ongs.css') }}">
+</head>
+<body>
+
+<div class="container">
+
+    <div class="topo">
+        <h2>ONGs Disponíveis</h2>
+    </div>
+
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <div class="flash">
+                {% for msg in messages %}
+                    <p>{{ msg }}</p>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <div class="lista">
+
+        {% if ongs %}
+            {% for ong in ongs %}
+            <div class="card">
+
+            <h3>{{ ong.nome }}</h3>
+
+            <div class="actions">
+
+                {% if ong.id in inscritas %}
+                    <a href="{{ url_for('usuarios.cancelar', id=ong.id) }}" class="btn sair">
+                        Sair
+                    </a>
+                {% else %}
+                    <a href="{{ url_for('usuarios.inscrever', id=ong.id) }}" class="btn entrar">
+                        Entrar
+                    </a>
+                {% endif %}
+
+            </div>
+
+        </div>
+            {% endfor %}
+        {% else %}
+            <div class="empty">
+                <p>Nenhuma ONG disponível no momento.</p>
+            </div>
+        {% endif %}
+
+    </div>
+
+    <a href="{{ url_for('usuarios.home') }}" class="voltar">Voltar</a>
+
+</div>
+
+</body>
+</html>

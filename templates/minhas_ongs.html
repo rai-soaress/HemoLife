@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Lista de ONGs</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='minhas_ongs_listar.css') }}">
+</head>
+<body>
+
+<div class="container">
+
+    <div class="topo">
+        <h2>Lista de ONGs</h2>
+    </div>
+
+    <div class="lista">
+
+        {% if ongs %}
+            {% for ong in ongs %}
+            <div class="card">
+
+                <div class="info">
+                    <h3>{{ ong.nome }}</h3>
+                    <p>{{ ong.email }}</p>
+                </div>
+
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="empty">
+                <p>Você ainda não está inscrito em nenhuma ONG.</p>
+            </div>
+        {% endif %}
+
+    </div>
+
+    <a href="{{ url_for('usuarios.home') }}" class="voltar">Voltar</a>
+
+</div>
+
+</body>
+</html>

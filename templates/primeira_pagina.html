@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>HemoLife - Início</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='primeira_pagina.css') }}">
+</head>
+<body>
+
+<header class="header">
+    <h1>HemoLife</h1>
+
+    <nav>
+        <a href="{{ url_for('usuarios.login') }}">Login</a>
+        <a href="{{ url_for('usuarios.cadastrar') }}">Cadastro</a>
+    </nav>
+</header>
+
+<section class="hero">
+
+    <h2>Conectando pessoas e ONGs</h2>
+
+    <p>
+        Um sistema simples para você encontrar ONGs, participar e ajudar causas importantes.
+    </p>
+
+    <div class="buttons">
+        <a href="{{ url_for('usuarios.login') }}" class="btn login">Entrar</a>
+        <a href="{{ url_for('usuarios.cadastrar') }}" class="btn cad">Criar conta</a>
+    </div>
+
+</section>
+
+<section class="info">
+
+    <div class="card">
+        <h3>ONGs</h3>
+        <p>Veja e participe de organizações</p>
+    </div>
+
+    <div class="card">
+        <h3>Doações</h3>
+        <p>Ajude quem precisa</p>
+    </div>
+
+    <div class="card">
+        <h3>Comunidade</h3>
+        <p>Conecte-se com outras pessoas</p>
+    </div>
+
+</section>
+
+<footer>
+    <p>© 2026 HemoLife - Todos os direitos reservados</p>
+</footer>
+
+</body>
+</html>

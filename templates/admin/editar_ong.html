@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin - Editar ONG</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='admin/editar.css') }}">
+</head>
+<body>
+
+<div class="container">
+
+    <h2>Editar ONG</h2>
+
+    <p class="sub">Altere as informações da ONG no sistema</p>
+
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <div class="flash">
+                {% for msg in messages %}
+                    <p>{{ msg }}</p>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <form method="POST" class="form">
+
+        <label>Nome</label>
+        <input type="text" name="nome" value="{{ ong.nome }}" required>
+
+        <label>Email</label>
+        <input type="email" name="email" value="{{ ong.email }}" required>
+
+        <label>CNPJ</label>
+        <input type="text" name="cnpj" value="{{ ong.cnpj }}" required>
+
+        <button type="submit">Atualizar</button>
+
+    </form>
+
+    <a href="{{ url_for('usuarios.listar_ongs') }}" class="voltar">
+        Voltar
+    </a>
+
+</div>
+
+</body>
+</html>

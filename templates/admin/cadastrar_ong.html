@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Cadastrar ONG</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='admin/cadastrar_ong.css') }}">
+</head>
+<body>
+
+<div class="container">
+
+    <h2>Cadastrar ONG</h2>
+
+    <p class="sub">Adicione uma nova ONG ao sistema</p>
+
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <div class="flash">
+                {% for msg in messages %}
+                    <p>{{ msg }}</p>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <form method="POST" class="form">
+
+        <label>Nome</label>
+        <input type="text" name="nome" required>
+
+        <label>Email</label>
+        <input type="email" name="email" required>
+
+        <label>Senha</label>
+        <input type="password" name="senha" required>
+
+        <label>CNPJ</label>
+        <input type="text" name="cnpj" required>
+
+        <button type="submit">Cadastrar</button>
+
+    </form>
+
+    <a href="{{ url_for('usuarios.listar_ongs') }}" class="voltar">
+        Voltar
+    </a>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Cadastro</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='cadastro.css') }}">
+</head>
+<body>
+
+<div class="container">
+
+    <h2>Cadastro</h2>
+
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <div class="flash">
+                {% for msg in messages %}
+                    <p>{{ msg }}</p>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <form method="POST" action="{{ url_for('usuarios.cadastrar') }}">
+
+        <div class="campo">
+            <label>Nome</label>
+            <input type="text" name="nome" required>
+        </div>
+
+        <div class="campo">
+            <label>Email</label>
+            <input type="email" name="email" required>
+        </div>
+
+        <div class="campo">
+            <label>Senha</label>
+            <input type="password" name="senha" required>
+        </div>
+
+        <div class="campo">
+            <label>Tipo Sanguíneo</label>
+            <input type="text" name="tipo_sanguineo">
+        </div>
+
+        <div class="campo">
+            <label>Perfil</label>
+            <select name="perfil" required>
+                <option value="doador">Doador</option>
+                <option value="admin">Admin</option>
+            </select>
+        </div>
+
+        <button type="submit">Cadastrar</button>
+
+        <a href="{{ url_for('usuarios.login') }}" class="voltar">Voltar</a>
+
+    </form>
+
+</div>
+
+</body>
+</html>

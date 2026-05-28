@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Login</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='login.css') }}">
+</head>
+<body>
+
+<div class="container">
+
+    <h2>Login</h2>
+
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <div class="flash">
+                {% for msg in messages %}
+                    <p>{{ msg }}</p>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <form method="POST" action="{{ url_for('usuarios.login') }}">
+
+        <div class="campo">
+            <label>Email</label>
+            <input type="email" name="email" required>
+        </div>
+
+        <div class="campo">
+            <label>Senha</label>
+            <input type="password" name="senha" required>
+        </div>
+
+        <button type="submit">Entrar</button>
+
+        <a href="{{ url_for('usuarios.cadastrar') }}" class="link">
+            Não tem conta? Cadastre-se
+        </a>
+
+    </form>
+
+</div>
+
+</body>
+</html>

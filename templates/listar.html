@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Lista de ONGs</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='listar_ongs.css') }}">
+</head>
+<body>
+
+<div class="container">
+
+    <div class="topo">
+        <h2>Lista de ONGs</h2>
+
+        <a href="/ong/cadastrar" class="btn-nova">+ Nova ONG</a>
+    </div>
+
+    <div class="lista">
+
+        {% for ong in ongs %}
+        <div class="card">
+
+            <div class="info">
+                <h3>{{ ong.nome }}</h3>
+                <p>{{ ong.email }}</p>
+            </div>
+
+            <div class="actions">
+                <a href="/ong/editar/{{ ong.id }}" class="btn edit">Editar</a>
+                <a href="/ong/deletar/{{ ong.id }}" class="btn delete">Excluir</a>
+            </div>
+
+        </div>
+        {% endfor %}
+
+    </div>
+
+</div>
+
+</body>
+</html>

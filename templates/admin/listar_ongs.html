@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin - Lista de ONGs</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='admin/listar.css') }}">
+</head>
+<body>
+
+<div class="container">
+
+    <div class="topo">
+        <h2>Painel Admin - ONGs</h2>
+
+        <a href="{{ url_for('usuarios.cadastrar_ong') }}" class="btn-nova">
+            + Nova ONG
+        </a>
+    </div>
+
+    <div class="lista">
+
+        {% for ong in ongs %}
+        <div class="card">
+
+            <div class="info">
+                <h3>{{ ong.nome }}</h3>
+                <p>{{ ong.email }}</p>
+            </div>
+
+            <div class="actions">
+
+                <a href="{{ url_for('usuarios.editar_ong', id=ong.id) }}" class="btn edit">
+                    Editar
+                </a>
+
+                <a href="{{ url_for('usuarios.deletar_ong', id=ong.id) }}" class="btn delete">
+                    Excluir
+                </a>
+
+            </div>
+
+        </div>
+        {% endfor %}
+
+    </div>
+
+    <a href="{{ url_for('usuarios.home') }}" class="voltar">Voltar</a>
+
+</div>
+
+</body>
+</html>

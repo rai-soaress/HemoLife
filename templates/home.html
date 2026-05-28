@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Home</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='home.css') }}">
+</head>
+<body>
+
+<div class="container">
+
+    <h2>Home</h2>
+
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <div class="flash">
+                {% for msg in messages %}
+                    <p>{{ msg }}</p>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <p class="welcome">Bem-vindo, <strong>{{ current_user.nome }}</strong></p>
+
+    <div class="menu">
+
+        <a href="{{ url_for('usuarios.ongs') }}" class="btn">Ver ONGs</a>
+
+        <a href="{{ url_for('usuarios.minhas_ongs') }}" class="btn">Minhas ONGs</a>
+
+        {% if current_user.perfil == 'admin' %}
+            <a href="{{ url_for('usuarios.listar_ongs') }}" class="btn admin">Gerenciar ONGs</a>
+        {% endif %}
+
+        <a href="{{ url_for('usuarios.logout') }}" class="btn logout">Sair</a>
+
+    </div>
+
+</div>
+
+</body>
+</html>
