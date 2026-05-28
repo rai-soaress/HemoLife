@@ -1,10 +1,27 @@
-<h2>Cadastrar ONG</h2>
+{% extends "base.html" %}
 
-<form method="POST">
-    Nome: <input type="text" name="nome"><br>
-    Email: <input type="email" name="email"><br>
-    Senha: <input type="password" name="senha"><br>
-    CNPJ: <input type="text" name="cnpj"><br>
+{% block title %}Cadastrar ONG | HemoLife{% endblock %}
 
-    <button type="submit">Cadastrar</button>
-</form>
+{% block content %}
+<section class="panel form-panel">
+    <h1>Cadastrar ONG</h1>
+    <form method="POST" action="{{ url_for('usuarios.cadastrar_ong') }}">
+        <label for="nome">Nome</label>
+        <input id="nome" type="text" name="nome" required>
+
+        <label for="email">Email</label>
+        <input id="email" type="email" name="email" required>
+
+        <label for="senha">Senha</label>
+        <input id="senha" type="password" name="senha" required>
+
+        <label for="cnpj">CNPJ</label>
+        <input id="cnpj" type="text" name="cnpj" required>
+
+        <div class="form-actions">
+            <button type="submit">Cadastrar</button>
+            <a class="button-link secondary-link" href="{{ url_for('usuarios.listar_ongs') }}">Voltar</a>
+        </div>
+    </form>
+</section>
+{% endblock %}

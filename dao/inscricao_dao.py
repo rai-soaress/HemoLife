@@ -1,38 +1,58 @@
 from extensao import bd
 from modelos.inscricao_modelo import Inscricao
+from modelos.ong_modelo import Ong
+from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 
 class InscricaoDAO:
 
     def inscrever(self, usuario_id, ong_id):
         try:
+            if not bd.session.get(Ong, int(ong_id)):
+                return False, "ONG nao encontrada."
+
             existe = Inscricao.query.filter_by(
                 usuario_id=usuario_id,
                 ong_id=ong_id
             ).first()
 
             if existe:
-                return False
+                return False, "Voce ja esta inscrito nesta ONG."
 
             insc = Inscricao(usuario_id=usuario_id, ong_id=ong_id)
             bd.session.add(insc)
             bd.session.commit()
-            return True
+            return True, "Inscricao realizada com sucesso."
 
-        except Exception as e:
-            print("ERRO:", e)
+        except (TypeError, ValueError):
             bd.session.rollback()
-            return False
+            return False, "ONG invalida."
+        except IntegrityError as erro:
+            bd.session.rollback()
+            print(f"Erro de integridade ao inscrever em ONG: {erro}")
+            return False, "Voce ja esta inscrito nesta ONG."
+        except SQLAlchemyError as erro:
+            bd.session.rollback()
+            print(f"Erro ao inscrever em ONG: {erro}")
+            return False, "Erro ao realizar inscricao. Tente novamente."
 
 
     def cancelar(self, usuario_id, ong_id):
-        insc = Inscricao.query.filter_by(
-            usuario_id=usuario_id,
-            ong_id=ong_id
-        ).first()
+        try:
+            insc = Inscricao.query.filter_by(
+                usuario_id=usuario_id,
+                ong_id=ong_id
+            ).first()
 
-        if insc:
+            if not insc:
+                return False, "Inscricao nao encontrada."
+
             bd.session.delete(insc)
             bd.session.commit()
+            return True, "Inscricao cancelada com sucesso."
+        except SQLAlchemyError as erro:
+            bd.session.rollback()
+            print(f"Erro ao cancelar inscricao: {erro}")
+            return False, "Erro ao cancelar inscricao. Tente novamente."
 
 
     def listar_ongs_do_usuario(self, usuario_id):

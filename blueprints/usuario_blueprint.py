@@ -1,4 +1,6 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash
+from functools import wraps
+
+from flask import Blueprint, abort, render_template, request, redirect, url_for, flash
 from flask_login import login_user, login_required, logout_user, current_user
 
 from dao.usuario_dao import UsuarioDAO
@@ -8,8 +10,24 @@ from dao.inscricao_dao import InscricaoDAO
 usuario_bp = Blueprint('usuarios', __name__)
 dao = UsuarioDAO()
 
+
+def admin_required(func):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        if not current_user.is_authenticated:
+            return redirect(url_for('usuarios.login'))
+        if current_user.perfil != 'admin':
+            abort(403)
+        return func(*args, **kwargs)
+
+    return wrapper
+
+
 @usuario_bp.route('/login', methods=['GET', 'POST'])
 def login():
+    if current_user.is_authenticated:
+        return redirect(url_for('usuarios.home'))
+
     if request.method == 'POST':
         usuario = dao.validar_login(
             request.form.get('email'),
@@ -20,22 +38,30 @@ def login():
             login_user(usuario)
             return redirect(url_for('usuarios.home'))
 
-        flash("Email ou senha inválidos")
+        flash("Email ou senha invalidos.", "error")
 
     return render_template('login.html')
 
 
 @usuario_bp.route('/cadastrar', methods=['GET', 'POST'])
 def cadastrar():
+    if current_user.is_authenticated:
+        return redirect(url_for('usuarios.home'))
+
     if request.method == 'POST':
-        dao.criar(
+        criado, mensagem = dao.criar(
             request.form.get('nome'),
             request.form.get('email'),
             request.form.get('senha'),
             request.form.get('tipo_sanguineo'),
             request.form.get('perfil')
         )
-        return redirect(url_for('usuarios.login'))
+
+        if criado:
+            flash(mensagem, "success")
+            return redirect(url_for('usuarios.login'))
+
+        flash(mensagem, "error")
 
     return render_template('cadastro.html')
 
@@ -54,60 +80,68 @@ def logout():
 
 @usuario_bp.route('/admin/ongs')
 @login_required
+@admin_required
 def listar_ongs():
-    if current_user.perfil != 'admin':
-        return "Acesso negado"
-
     ongs = OngDAO().listar_ongs()
     return render_template('admin/listar_ongs.html', ongs=ongs)
 
 
 @usuario_bp.route('/admin/ongs/cadastrar', methods=['GET', 'POST'])
 @login_required
+@admin_required
 def cadastrar_ong():
-    if current_user.perfil != 'admin':
-        return "Acesso negado"
-
     if request.method == 'POST':
-        OngDAO().cadastrar_ong(
+        criada, mensagem = OngDAO().cadastrar_ong(
             request.form.get('nome'),
             request.form.get('email'),
             request.form.get('senha'),
             request.form.get('cnpj')
         )
-        return redirect(url_for('usuarios.listar_ongs'))
+
+        if criada:
+            flash(mensagem, "success")
+            return redirect(url_for('usuarios.listar_ongs'))
+
+        flash(mensagem, "error")
 
     return render_template('admin/cadastrar_ong.html')
 
 
 @usuario_bp.route('/admin/ongs/editar/<int:id>', methods=['GET', 'POST'])
 @login_required
+@admin_required
 def editar_ong(id):
-    if current_user.perfil != 'admin':
-        return "Acesso negado"
-
     dao_ong = OngDAO()
     ong = dao_ong.buscar_por_id(id)
+    if not ong:
+        abort(404)
 
     if request.method == 'POST':
-        dao_ong.atualizar_ong(
+        atualizada, mensagem = dao_ong.atualizar_ong(
             id,
             request.form.get('nome'),
             request.form.get('email'),
             request.form.get('cnpj')
         )
-        return redirect(url_for('usuarios.listar_ongs'))
+
+        if atualizada:
+            flash(mensagem, "success")
+            return redirect(url_for('usuarios.listar_ongs'))
+
+        flash(mensagem, "error")
 
     return render_template('admin/editar_ong.html', ong=ong)
 
 
-@usuario_bp.route('/admin/ongs/deletar/<int:id>')
+@usuario_bp.route('/admin/ongs/deletar/<int:id>', methods=['POST'])
 @login_required
+@admin_required
 def deletar_ong(id):
-    if current_user.perfil != 'admin':
-        return "Acesso negado"
+    if OngDAO().deletar_ong(id):
+        flash("ONG excluida com sucesso.", "success")
+    else:
+        flash("ONG nao encontrada.", "error")
 
-    OngDAO().deletar_ong(id)
     return redirect(url_for('usuarios.listar_ongs'))
 
 
@@ -127,17 +161,21 @@ def ongs():
     return render_template('ongs.html', ongs=ongs, inscritas=inscritas)
 
 
-@usuario_bp.route('/ongs/inscrever/<int:id>')
+@usuario_bp.route('/ongs/inscrever/<int:id>', methods=['POST'])
 @login_required
 def inscrever(id):
-    InscricaoDAO().inscrever(current_user.id, id)
+    sucesso, mensagem = InscricaoDAO().inscrever(current_user.id, id)
+    flash(mensagem, "success" if sucesso else "error")
+
     return redirect(url_for('usuarios.ongs'))
 
 
-@usuario_bp.route('/ongs/cancelar/<int:id>')
+@usuario_bp.route('/ongs/cancelar/<int:id>', methods=['POST'])
 @login_required
 def cancelar(id):
-    InscricaoDAO().cancelar(current_user.id, id)
+    sucesso, mensagem = InscricaoDAO().cancelar(current_user.id, id)
+    flash(mensagem, "success" if sucesso else "error")
+
     return redirect(url_for('usuarios.ongs'))
 
 

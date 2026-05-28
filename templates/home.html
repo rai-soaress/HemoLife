@@ -1,12 +1,45 @@
-<h2>Home</h2>
+{% extends "base.html" %}
 
-<p>Bem-vindo, {{ current_user.nome }}</p>
+{% block title %}Home | HemoLife{% endblock %}
 
-<a href="{{ url_for('usuarios.ongs') }}">Ver ONGs</a><br>
-<a href="{{ url_for('usuarios.minhas_ongs') }}">Minhas ONGs</a><br>
+{% block content %}
+<section class="hero">
+    <div>
+        {% if current_user.perfil == 'admin' %}
+            <p class="eyebrow">Admin</p>
+            <h1>Painel Administrativo</h1>
+            <p>Gerencie ONGs, inscricoes e dados do sistema HemoLife.</p>
+        {% else %}
+            <p class="eyebrow">Doador</p>
+            <h1>Painel do Doador</h1>
+            <p>Encontre ONGs e acompanhe suas inscricoes.</p>
+        {% endif %}
+    </div>
+</section>
 
-{% if current_user.perfil == 'admin' %}
-    <a href="{{ url_for('usuarios.listar_ongs') }}">Gerenciar ONGs</a><br>
-{% endif %}
-
-<a href="{{ url_for('usuarios.logout') }}">Sair</a>
+<section class="grid-actions">
+    {% if current_user.perfil == 'admin' %}
+        <a class="action-card" href="{{ url_for('usuarios.listar_ongs') }}">
+            <strong>Gerenciar ONGs</strong>
+            <span>Cadastre, edite e remova ONGs.</span>
+        </a>
+        <a class="action-card" href="{{ url_for('usuarios.cadastrar_ong') }}">
+            <strong>Cadastrar ONG</strong>
+            <span>Adicione uma nova ONG ao sistema.</span>
+        </a>
+        <a class="action-card" href="{{ url_for('usuarios.ongs') }}">
+            <strong>Ver ONGs publicas</strong>
+            <span>Confira a listagem disponivel para doadores.</span>
+        </a>
+    {% else %}
+        <a class="action-card" href="{{ url_for('usuarios.ongs') }}">
+            <strong>Ver ONGs</strong>
+            <span>Encontre ONGs disponiveis e participe.</span>
+        </a>
+        <a class="action-card" href="{{ url_for('usuarios.minhas_ongs') }}">
+            <strong>Minhas ONGs</strong>
+            <span>Acompanhe suas inscricoes ativas.</span>
+        </a>
+    {% endif %}
+</section>
+{% endblock %}

@@ -1,9 +1,24 @@
-<h2>Editar ONG</h2>
+{% extends "base.html" %}
 
-<form method="POST">
-    Nome: <input type="text" name="nome" value="{{ ong.nome }}"><br>
-    Email: <input type="email" name="email" value="{{ ong.email }}"><br>
-    CNPJ: <input type="text" name="cnpj" value="{{ ong.cnpj }}"><br>
+{% block title %}Editar ONG | HemoLife{% endblock %}
 
-    <button type="submit">Atualizar</button>
-</form>
+{% block content %}
+<section class="panel form-panel">
+    <h1>Editar ONG</h1>
+    <form method="POST" action="{{ url_for('usuarios.editar_ong', id=ong.id) }}">
+        <label for="nome">Nome</label>
+        <input id="nome" type="text" name="nome" value="{{ ong.nome }}" required>
+
+        <label for="email">Email</label>
+        <input id="email" type="email" name="email" value="{{ ong.email }}" required>
+
+        <label for="cnpj">CNPJ</label>
+        <input id="cnpj" type="text" name="cnpj" value="{{ ong.cnpj }}" required>
+
+        <div class="form-actions">
+            <button type="submit">Atualizar</button>
+            <a class="button-link secondary-link" href="{{ url_for('usuarios.listar_ongs') }}">Voltar</a>
+        </div>
+    </form>
+</section>
+{% endblock %}

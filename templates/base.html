@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}HemoLife{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <header class="topbar">
+        <a class="brand" href="{{ url_for('inicio') }}">HemoLife</a>
+        <nav>
+            {% if current_user.is_authenticated %}
+                <a href="{{ url_for('usuarios.home') }}">Home</a>
+                <a href="{{ url_for('usuarios.ongs') }}">ONGs</a>
+                {% if current_user.perfil == 'admin' %}
+                    <a href="{{ url_for('usuarios.listar_ongs') }}">Admin</a>
+                {% else %}
+                    <a href="{{ url_for('usuarios.minhas_ongs') }}">Minhas ONGs</a>
+                {% endif %}
+                <a href="{{ url_for('usuarios.logout') }}">Sair</a>
+            {% else %}
+                <a href="{{ url_for('usuarios.login') }}">Login</a>
+                <a href="{{ url_for('usuarios.cadastrar') }}">Cadastro</a>
+            {% endif %}
+        </nav>
+    </header>
+
+    <main class="container">
+        {% with mensagens = get_flashed_messages(with_categories=true) %}
+            {% if mensagens %}
+                <section class="flash-list" aria-live="polite">
+                    {% for categoria, msg in mensagens %}
+                        <p class="flash flash-{{ categoria }}">{{ msg }}</p>
+                    {% endfor %}
+                </section>
+            {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </main>
+</body>
+</html>

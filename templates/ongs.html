@@ -1,17 +1,33 @@
-<h2>ONGs</h2>
+{% extends "base.html" %}
 
-<ul>
+{% block title %}ONGs | HemoLife{% endblock %}
+
+{% block content %}
+<section class="page-heading">
+    <h1>ONGs</h1>
+    <p>Escolha uma ONG para acompanhar e apoiar.</p>
+</section>
+
+<section class="card-list">
     {% for ong in ongs %}
-        <li>
-            {{ ong.nome }}
-
+        <article class="list-card">
+            <div>
+                <h2>{{ ong.nome }}</h2>
+                <p>{{ ong.email }}</p>
+                <p class="muted">CNPJ: {{ ong.cnpj }}</p>
+            </div>
             {% if ong.id in inscritas %}
-                <a href="{{ url_for('usuarios.cancelar', id=ong.id) }}">Sair</a>
+                <form method="POST" action="{{ url_for('usuarios.cancelar', id=ong.id) }}">
+                    <button class="secondary" type="submit">Cancelar inscricao</button>
+                </form>
             {% else %}
-                <a href="{{ url_for('usuarios.inscrever', id=ong.id) }}">Entrar</a>
+                <form method="POST" action="{{ url_for('usuarios.inscrever', id=ong.id) }}">
+                    <button type="submit">Inscrever-se</button>
+                </form>
             {% endif %}
-        </li>
+        </article>
+    {% else %}
+        <p class="empty-state">Nenhuma ONG cadastrada.</p>
     {% endfor %}
-</ul>
-
-<a href="{{ url_for('usuarios.home') }}">Voltar</a>
+</section>
+{% endblock %}

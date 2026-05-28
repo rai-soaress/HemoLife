@@ -1,18 +1,19 @@
-<h2>Login</h2>
+{% extends "base.html" %}
 
-{% with mensagens = get_flashed_messages() %}
-    {% if mensagens %}
-        {% for msg in mensagens %}
-            <p>{{ msg }}</p>
-        {% endfor %}
-    {% endif %}
-{% endwith %}
+{% block title %}Login | HemoLife{% endblock %}
 
-<form method="POST">
-    Email: <input type="email" name="email" required><br>
-    Senha: <input type="password" name="senha" required><br>
+{% block content %}
+<section class="panel auth-panel">
+    <h1>Login</h1>
+    <form method="POST" action="{{ url_for('usuarios.login') }}">
+        <label for="email">Email</label>
+        <input id="email" type="email" name="email" autocomplete="email" required>
 
-    <button type="submit">Entrar</button>
-</form>
+        <label for="senha">Senha</label>
+        <input id="senha" type="password" name="senha" autocomplete="current-password" required>
 
-<a href="{{ url_for('usuarios.cadastrar') }}">Cadastrar</a>
+        <button type="submit">Entrar</button>
+    </form>
+    <p class="muted">Ainda nao tem conta? <a href="{{ url_for('usuarios.cadastrar') }}">Cadastre-se</a>.</p>
+</section>
+{% endblock %}

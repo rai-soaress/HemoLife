@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block title %}HemoLife{% endblock %}
+
+{% block content %}
+<section class="hero landing">
+    <div>
+        <p class="eyebrow">Doacao de sangue e conexao social</p>
+        <h1>HemoLife</h1>
+        <p>Uma plataforma simples para conectar doadores, administradores e ONGs em torno de campanhas de apoio.</p>
+        <div class="hero-actions">
+            <a class="button-link" href="{{ url_for('usuarios.login') }}">Entrar</a>
+            <a class="button-link secondary-link" href="{{ url_for('usuarios.cadastrar') }}">Cadastrar</a>
+        </div>
+    </div>
+</section>
+{% endblock %}

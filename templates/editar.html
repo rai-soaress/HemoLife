@@ -1,9 +1,1 @@
-<h2>Editar ONG</h2>
-
-<form method="POST">
-    Nome: <input type="text" name="nome" value="{{ ong.nome }}"><br>
-    Email: <input type="email" name="email" value="{{ ong.email }}"><br>
-    CNPJ: <input type="text" name="cnpj" value="{{ ong.cnpj }}"><br>
-
-    <button type="submit">Atualizar</button>
-</form>
+{% extends "admin/editar_ong.html" %}

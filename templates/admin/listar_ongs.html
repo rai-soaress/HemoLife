@@ -1,16 +1,45 @@
-<h2>Lista de ONGs</h2>
+{% extends "base.html" %}
 
-<a href="{{ url_for('usuarios.cadastrar_ong') }}">Nova ONG</a>
+{% block title %}Admin ONGs | HemoLife{% endblock %}
 
-<ul>
-    {% for ong in ongs %}
-        <li>
-            {{ ong.nome }} - {{ ong.email }}
+{% block content %}
+<section class="page-heading heading-row">
+    <div>
+        <h1>Lista de ONGs</h1>
+        <p>Gerencie as ONGs cadastradas no sistema.</p>
+    </div>
+    <a class="button-link" href="{{ url_for('usuarios.cadastrar_ong') }}">Nova ONG</a>
+</section>
 
-            <a href="{{ url_for('usuarios.editar_ong', id=ong.id) }}">Editar</a>
-            <a href="{{ url_for('usuarios.deletar_ong', id=ong.id) }}">Excluir</a>
-        </li>
-    {% endfor %}
-</ul>
-
-<a href="{{ url_for('usuarios.home') }}">Voltar</a>
+<section class="table-wrap">
+    <table>
+        <thead>
+            <tr>
+                <th>Nome</th>
+                <th>Email</th>
+                <th>CNPJ</th>
+                <th>Acoes</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for ong in ongs %}
+                <tr>
+                    <td>{{ ong.nome }}</td>
+                    <td>{{ ong.email }}</td>
+                    <td>{{ ong.cnpj }}</td>
+                    <td class="actions">
+                        <a class="small-link" href="{{ url_for('usuarios.editar_ong', id=ong.id) }}">Editar</a>
+                        <form method="POST" action="{{ url_for('usuarios.deletar_ong', id=ong.id) }}">
+                            <button class="danger" type="submit">Excluir</button>
+                        </form>
+                    </td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td colspan="4">Nenhuma ONG cadastrada.</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</section>
+{% endblock %}
