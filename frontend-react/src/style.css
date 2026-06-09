@@ -24,6 +24,23 @@ body {
   margin: 8px 0 0;
 }
 
+.topo button {
+  margin-top: 16px;
+  background: #b51d2a;
+  border: 1px solid #b51d2a;
+  border-radius: 6px;
+  color: white;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 700;
+  padding: 10px 14px;
+}
+
+.topo button:disabled {
+  cursor: wait;
+  opacity: 0.7;
+}
+
 .lista {
   display: grid;
   gap: 12px;
@@ -47,4 +64,8 @@ body {
 
 .erro {
   color: #b51d2a;
+}
+
+.vazio {
+  color: #666;
 }
