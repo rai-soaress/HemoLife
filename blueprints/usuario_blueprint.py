@@ -1,6 +1,6 @@
 from functools import wraps
 
-from flask import Blueprint, abort, render_template, request, redirect, url_for, flash
+from flask import Blueprint, abort, request, jsonify
 from flask_login import login_user, login_required, logout_user, current_user
 
 from dao.usuario_dao import UsuarioDAO
@@ -11,11 +11,37 @@ usuario_bp = Blueprint('usuarios', __name__)
 dao = UsuarioDAO()
 
 
+def get_payload():
+    payload = request.get_json(silent=True)
+    if payload is not None:
+        return payload
+    return request.form or {}
+
+
+def usuario_to_dict(usuario):
+    return {
+        'id': usuario.id,
+        'nome': usuario.nome,
+        'email': usuario.email,
+        'perfil': usuario.perfil,
+        'tipo_sanguineo': usuario.tipo_sanguineo,
+    }
+
+
+def ong_to_dict(ong):
+    return {
+        'id': ong.id,
+        'nome': ong.nome,
+        'email': ong.email,
+        'cnpj': ong.cnpj,
+    }
+
+
 def admin_required(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
         if not current_user.is_authenticated:
-            return redirect(url_for('usuarios.login'))
+            abort(401)
         if current_user.perfil != 'admin':
             abort(403)
         return func(*args, **kwargs)
@@ -23,91 +49,112 @@ def admin_required(func):
     return wrapper
 
 
+@usuario_bp.route('/session', methods=['GET'])
+def session_info():
+    if current_user.is_authenticated:
+        return jsonify({
+            'authenticated': True,
+            'user': usuario_to_dict(current_user),
+        })
+    return jsonify({'authenticated': False})
+
+
 @usuario_bp.route('/login', methods=['GET', 'POST'])
 def login():
     if current_user.is_authenticated:
-        return redirect(url_for('usuarios.home'))
+        return jsonify({
+            'authenticated': True,
+            'user': usuario_to_dict(current_user),
+        })
 
     if request.method == 'POST':
+        payload = get_payload()
         usuario = dao.validar_login(
-            request.form.get('email'),
-            request.form.get('senha')
+            payload.get('email'),
+            payload.get('senha')
         )
 
         if usuario:
             login_user(usuario)
-            return redirect(url_for('usuarios.home'))
+            return jsonify({
+                'success': True,
+                'user': usuario_to_dict(usuario),
+            })
 
-        flash("Email ou senha invalidos.", "error")
+        return jsonify({'success': False, 'message': 'Email ou senha invalidos.'}), 401
 
-    return render_template('login.html')
+    return jsonify({'authenticated': False})
 
 
 @usuario_bp.route('/cadastrar', methods=['GET', 'POST'])
 def cadastrar():
     if current_user.is_authenticated:
-        return redirect(url_for('usuarios.home'))
+        return jsonify({
+            'authenticated': True,
+            'user': usuario_to_dict(current_user),
+        })
 
     if request.method == 'POST':
+        payload = get_payload()
         criado, mensagem = dao.criar(
-            request.form.get('nome'),
-            request.form.get('email'),
-            request.form.get('senha'),
-            request.form.get('tipo_sanguineo'),
-            request.form.get('perfil')
+            payload.get('nome'),
+            payload.get('email'),
+            payload.get('senha'),
+            payload.get('tipo_sanguineo'),
+            payload.get('perfil')
         )
 
         if criado:
-            flash(mensagem, "success")
-            return redirect(url_for('usuarios.login'))
+            return jsonify({'success': True, 'message': mensagem}), 201
 
-        flash(mensagem, "error")
+        return jsonify({'success': False, 'message': mensagem}), 400
 
-    return render_template('cadastro.html')
+    return jsonify({'authenticated': False})
 
 
-@usuario_bp.route('/home')
+@usuario_bp.route('/home', methods=['GET'])
 @login_required
 def home():
-    return render_template('home.html')
+    return jsonify({
+        'success': True,
+        'user': usuario_to_dict(current_user),
+    })
 
-@usuario_bp.route('/logout')
+
+@usuario_bp.route('/logout', methods=['POST'])
 @login_required
 def logout():
     logout_user()
-    return redirect(url_for('usuarios.login'))
+    return jsonify({'success': True, 'message': 'Logout realizado com sucesso.'})
 
 
-@usuario_bp.route('/admin/ongs')
+@usuario_bp.route('/admin/ongs', methods=['GET'])
 @login_required
 @admin_required
 def listar_ongs():
     ongs = OngDAO().listar_ongs()
-    return render_template('admin/listar_ongs.html', ongs=ongs)
+    return jsonify([ong_to_dict(ong) for ong in ongs])
 
 
-@usuario_bp.route('/admin/ongs/cadastrar', methods=['GET', 'POST'])
+@usuario_bp.route('/admin/ongs/cadastrar', methods=['POST'])
 @login_required
 @admin_required
 def cadastrar_ong():
-    if request.method == 'POST':
-        criada, mensagem = OngDAO().cadastrar_ong(
-            request.form.get('nome'),
-            request.form.get('email'),
-            request.form.get('senha'),
-            request.form.get('cnpj')
-        )
+    payload = get_payload()
+    criada, mensagem = OngDAO().cadastrar_ong(
+        payload.get('nome'),
+        payload.get('email'),
+        payload.get('senha'),
+        payload.get('cnpj')
+    )
 
-        if criada:
-            flash(mensagem, "success")
-            return redirect(url_for('usuarios.listar_ongs'))
+    if criada:
+        return jsonify({'success': True, 'message': mensagem}), 201
 
-        flash(mensagem, "error")
-
-    return render_template('admin/cadastrar_ong.html')
+    return jsonify({'success': False, 'message': mensagem}), 400
 
 
-@usuario_bp.route('/admin/ongs/editar/<int:id>', methods=['GET', 'POST'])
+@usuario_bp.route('/admin/ongs/<int:id>', methods=['GET', 'PUT'])
 @login_required
 @admin_required
 def editar_ong(id):
@@ -116,71 +163,66 @@ def editar_ong(id):
     if not ong:
         abort(404)
 
-    if request.method == 'POST':
-        atualizada, mensagem = dao_ong.atualizar_ong(
-            id,
-            request.form.get('nome'),
-            request.form.get('email'),
-            request.form.get('cnpj')
-        )
+    if request.method == 'GET':
+        return jsonify(ong_to_dict(ong))
 
-        if atualizada:
-            flash(mensagem, "success")
-            return redirect(url_for('usuarios.listar_ongs'))
+    payload = get_payload()
+    atualizada, mensagem = dao_ong.atualizar_ong(
+        id,
+        payload.get('nome'),
+        payload.get('email'),
+        payload.get('cnpj')
+    )
 
-        flash(mensagem, "error")
+    if atualizada:
+        return jsonify({'success': True, 'message': mensagem})
 
-    return render_template('admin/editar_ong.html', ong=ong)
+    return jsonify({'success': False, 'message': mensagem}), 400
 
 
-@usuario_bp.route('/admin/ongs/deletar/<int:id>', methods=['POST'])
+@usuario_bp.route('/admin/ongs/<int:id>', methods=['DELETE'])
 @login_required
 @admin_required
 def deletar_ong(id):
     if OngDAO().deletar_ong(id):
-        flash("ONG excluida com sucesso.", "success")
-    else:
-        flash("ONG nao encontrada.", "error")
+        return jsonify({'success': True, 'message': 'ONG excluida com sucesso.'})
 
-    return redirect(url_for('usuarios.listar_ongs'))
+    return jsonify({'success': False, 'message': 'ONG nao encontrada.'}), 404
 
 
-@usuario_bp.route('/ongs')
+@usuario_bp.route('/ongs', methods=['GET'])
 @login_required
 def ongs():
     dao_ong = OngDAO()
     dao_insc = InscricaoDAO()
 
     ongs = dao_ong.listar_ongs()
+    inscritas = [o.id for o in ongs if dao_insc.ja_inscrito(current_user.id, o.id)]
 
-    inscritas = []
-    for o in ongs:
-        if dao_insc.ja_inscrito(current_user.id, o.id):
-            inscritas.append(o.id)
-
-    return render_template('ongs.html', ongs=ongs, inscritas=inscritas)
+    return jsonify({
+        'ongs': [ong_to_dict(ong) for ong in ongs],
+        'inscritas': inscritas,
+    })
 
 
 @usuario_bp.route('/ongs/inscrever/<int:id>', methods=['POST'])
 @login_required
 def inscrever(id):
     sucesso, mensagem = InscricaoDAO().inscrever(current_user.id, id)
-    flash(mensagem, "success" if sucesso else "error")
-
-    return redirect(url_for('usuarios.ongs'))
+    status = 200 if sucesso else 400
+    return jsonify({'success': sucesso, 'message': mensagem}), status
 
 
 @usuario_bp.route('/ongs/cancelar/<int:id>', methods=['POST'])
 @login_required
 def cancelar(id):
     sucesso, mensagem = InscricaoDAO().cancelar(current_user.id, id)
-    flash(mensagem, "success" if sucesso else "error")
+    status = 200 if sucesso else 400
+    return jsonify({'success': sucesso, 'message': mensagem}), status
 
-    return redirect(url_for('usuarios.ongs'))
 
-
-@usuario_bp.route('/minhas-ongs')
+@usuario_bp.route('/minhas-ongs', methods=['GET'])
 @login_required
 def minhas_ongs():
     ongs = InscricaoDAO().listar_ongs_do_usuario(current_user.id)
-    return render_template('minhas_ongs.html', ongs=ongs)
+    return jsonify({'ongs': [ong_to_dict(ong) for ong in ongs]})

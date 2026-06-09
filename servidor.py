@@ -1,4 +1,4 @@
-from flask import Flask, render_template
+from flask import Flask, jsonify, request
 from flask_cors import CORS
 from extensao import bd, login_manager
 import os
@@ -21,7 +21,6 @@ def configurar_banco():
     db_port = os.getenv("DB_PORT")
     db_name = os.getenv("DB_NAME")
 
-    # PostgreSQL
     if all([db_user, db_password, db_host, db_port, db_name]):
         usuario = quote_plus(db_user)
         senha = quote_plus(db_password)
@@ -33,7 +32,6 @@ def configurar_banco():
             f"{usuario}:{senha}@{host}:{db_port}/{banco}"
         )
 
-    # SQLite fallback
     return "sqlite:///instance/hemolife.db"
 
 
@@ -41,17 +39,29 @@ def criar_servidor():
     app = Flask(__name__)
 
     app.config['SECRET_KEY'] = os.getenv("SECRET_KEY", "chave-secreta")
-
     app.config['SQLALCHEMY_DATABASE_URI'] = configurar_banco()
-
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
+    app.config['SESSION_COOKIE_SECURE'] = False
+    app.config['REMEMBER_COOKIE_SAMESITE'] = 'Lax'
+    app.config['REMEMBER_COOKIE_SECURE'] = False
 
     app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
         "pool_pre_ping": True,
         "pool_recycle": 300
     }
 
-    CORS(app)
+    frontend_origin = os.getenv("FRONTEND_URL", "http://localhost:5173")
+    cors_origins = [
+        frontend_origin,
+        "http://127.0.0.1:5173",
+        "http://localhost:5173",
+        "http://127.0.0.1:5174",
+        "http://localhost:5174",
+        "http://127.0.0.1:5175",
+        "http://localhost:5175",
+    ]
+    CORS(app, supports_credentials=True, resources={r"/*": {"origins": cors_origins}})
 
     bd.init_app(app)
     login_manager.init_app(app)
@@ -63,34 +73,35 @@ def criar_servidor():
     def load_user(user_id):
         return UsuarioDAO().buscar_por_id(user_id)
 
-    # =========================
-    # ROTAS
-    # =========================
+    @login_manager.unauthorized_handler
+    def unauthorized():
+        return jsonify({"success": False, "message": "Login required"}), 401
 
     @app.route('/')
     def inicio():
-        return render_template('primeira_pagina.html')
+        return jsonify({"mensagem": "Backend HemoLife funcionando com React"})
 
-    # =========================
-    # ERROS
-    # =========================
+    @app.route('/api/teste')
+    def teste():
+        return jsonify({
+            "mensagem": "Backend HemoLife funcionando com React"
+        })
+
+    def error_response(message, status):
+        return jsonify({"success": False, "message": message}), status
 
     @app.errorhandler(403)
     def acesso_negado(error):
-        return render_template('403.html'), 403
+        return error_response('Acesso negado', 403)
 
     @app.errorhandler(404)
     def pagina_nao_encontrada(error):
-        return render_template('404.html'), 404
+        return error_response('Pagina nao encontrada', 404)
 
     @app.errorhandler(500)
     def erro_interno(error):
         bd.session.rollback()
-        return render_template('500.html'), 500
-
-    # =========================
-    # BLUEPRINTS
-    # =========================
+        return jsonify({"success": False, "message": "Erro interno do servidor"}), 500
 
     from blueprints.usuario_blueprint import usuario_bp
     app.register_blueprint(usuario_bp, url_prefix='/usuarios')
