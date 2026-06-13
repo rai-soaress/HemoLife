@@ -1,6 +1,7 @@
 from extensao import bd
 from modelos.inscricao_modelo import Inscricao
 from modelos.ong_modelo import Ong
+from modelos.usuario_modelo import Usuario
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 
 class InscricaoDAO:
@@ -58,6 +59,16 @@ class InscricaoDAO:
     def listar_ongs_do_usuario(self, usuario_id):
         insc = Inscricao.query.filter_by(usuario_id=usuario_id).all()
         return [i.ong for i in insc]
+
+
+    def listar_usuarios_da_ong(self, ong_id):
+        return (
+            Usuario.query
+            .join(Inscricao, Inscricao.usuario_id == Usuario.id)
+            .filter(Inscricao.ong_id == ong_id)
+            .order_by(Usuario.nome.asc())
+            .all()
+        )
 
 
     def ja_inscrito(self, usuario_id, ong_id):

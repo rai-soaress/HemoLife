@@ -4,6 +4,11 @@ from extensao import bd, login_manager
 import os
 from dotenv import load_dotenv
 from dao.usuario_dao import UsuarioDAO
+from modelos.exame_modelo import Exame
+from modelos.inscricao_modelo import Inscricao
+from modelos.ong_modelo import Ong
+from modelos.unidade_modelo import Unidade
+from modelos.usuario_modelo import Usuario
 from urllib.parse import quote_plus
 
 load_dotenv()

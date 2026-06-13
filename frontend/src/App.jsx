@@ -1,7 +1,7 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import Header from './components/Header'
 import { AuthProvider } from './contexts/AuthContext'
-import { RequireAuth, RequireAdmin } from './components/RequireAuth'
+import { RequireAuth, RequireAdmin, RequireDoador, RequireOng } from './components/RequireAuth'
 import LandingPage from './pages/LandingPage'
 import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
@@ -10,6 +10,8 @@ import OngsPage from './pages/OngsPage'
 import MinhasOngsPage from './pages/MinhasOngsPage'
 import AdminOngListPage from './pages/AdminOngListPage'
 import AdminOngFormPage from './pages/AdminOngFormPage'
+import ExamesPage from './pages/ExamesPage'
+import OngDashboardPage from './pages/OngDashboardPage'
 import NotFoundPage from './pages/NotFoundPage'
 
 export default function App() {
@@ -23,8 +25,10 @@ export default function App() {
             <Route path="/login" element={<LoginPage />} />
             <Route path="/cadastrar" element={<RegisterPage />} />
             <Route path="/home" element={<RequireAuth><HomePage /></RequireAuth>} />
-            <Route path="/ongs" element={<RequireAuth><OngsPage /></RequireAuth>} />
-            <Route path="/minhas-ongs" element={<RequireAuth><MinhasOngsPage /></RequireAuth>} />
+            <Route path="/ongs" element={<RequireDoador><OngsPage /></RequireDoador>} />
+            <Route path="/minhas-ongs" element={<RequireDoador><MinhasOngsPage /></RequireDoador>} />
+            <Route path="/exames" element={<RequireDoador><ExamesPage /></RequireDoador>} />
+            <Route path="/ong/painel" element={<RequireOng><OngDashboardPage /></RequireOng>} />
             <Route path="/admin/ongs" element={<RequireAdmin><AdminOngListPage /></RequireAdmin>} />
             <Route path="/admin/ongs/cadastrar" element={<RequireAdmin><AdminOngFormPage /></RequireAdmin>} />
             <Route path="/admin/ongs/editar/:id" element={<RequireAdmin><AdminOngFormPage /></RequireAdmin>} />

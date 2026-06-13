@@ -16,3 +16,8 @@ class Usuario(bd.Model, UserMixin):
         back_populates='usuario',
         cascade='all, delete-orphan',
     )
+    exames = bd.relationship(
+        'Exame',
+        back_populates='usuario',
+        cascade='all, delete-orphan',
+    )

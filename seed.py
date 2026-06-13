@@ -3,6 +3,7 @@ from extensao import bd
 from modelos.usuario_modelo import Usuario
 from modelos.ong_modelo import Ong
 from modelos.unidade_modelo import Unidade
+from modelos.inscricao_modelo import Inscricao
 from werkzeug.security import generate_password_hash
 
 app = criar_servidor()
@@ -38,5 +39,8 @@ with app.app_context():
     )
     
     bd.session.add_all([admin, doador, ong, unidade])
+    bd.session.flush()
+    inscricao = Inscricao(usuario_id=doador.id, ong_id=ong.id)
+    bd.session.add(inscricao)
     bd.session.commit()
-    print("Dados inseridos! Admin: admin@hospital.com / 123 | Doador: samuel@teste.com / 123")
+    print("Dados inseridos! Admin: admin@hospital.com / 123 | Doador: samuel@teste.com / 123 | ONG: ong@teste.com / 123")

@@ -1,44 +1,77 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { register } from '../services/api'
+import { register, registerOng } from '../services/api'
+
+const ACCOUNT_TYPES = [
+  { value: 'doador', label: 'Doador' },
+  { value: 'ong', label: 'ONG' },
+  { value: 'admin', label: 'Admin' },
+]
+
+const BLOOD_TYPES = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-']
 
 export default function RegisterPage() {
   const navigate = useNavigate()
+  const [accountType, setAccountType] = useState('doador')
   const [nome, setNome] = useState('')
   const [email, setEmail] = useState('')
   const [senha, setSenha] = useState('')
-  const [perfil, setPerfil] = useState('doador')
   const [tipoSanguineo, setTipoSanguineo] = useState('')
+  const [cnpj, setCnpj] = useState('')
+  const [codigoAdmin, setCodigoAdmin] = useState('')
   const [message, setMessage] = useState('')
 
-  const isAdmin = perfil === 'admin'
+  const isDoador = accountType === 'doador'
+  const isOng = accountType === 'ong'
+  const isAdmin = accountType === 'admin'
 
   async function handleSubmit(event) {
     event.preventDefault()
     setMessage('')
 
     try {
-      const data = await register(nome, email, senha, perfil, isAdmin ? null : tipoSanguineo)
+      const data = isOng
+        ? await registerOng({ nome, email, senha, cnpj })
+        : await register({
+            nome,
+            email,
+            senha,
+            perfil: accountType,
+            tipo_sanguineo: isDoador ? tipoSanguineo : null,
+            codigo_admin: isAdmin ? codigoAdmin : null,
+          })
+
       if (data.success) {
         navigate('/login')
       } else {
         setMessage(data.message || 'Erro ao cadastrar.')
       }
     } catch (error) {
-      const fallback =
-        error.data?.message === 'Login required'
-          ? 'Não é necessário estar logado para cadastrar. Tente novamente.'
-          : error.data?.message || error.message || 'Erro ao cadastrar.'
-      setMessage(fallback)
+      setMessage(error.data?.message || error.message || 'Erro ao cadastrar.')
     }
   }
 
   return (
     <section className="panel auth-panel">
       <h1>Cadastro</h1>
+      <p className="muted auth-hint">Crie a conta no perfil correto para liberar as telas certas.</p>
       {message && <p className="flash flash-error">{message}</p>}
+
+      <div className="segmented-control" role="tablist" aria-label="Tipo de cadastro">
+        {ACCOUNT_TYPES.map((type) => (
+          <button
+            key={type.value}
+            type="button"
+            className={accountType === type.value ? 'active' : ''}
+            onClick={() => setAccountType(type.value)}
+          >
+            {type.label}
+          </button>
+        ))}
+      </div>
+
       <form onSubmit={handleSubmit}>
-        <label htmlFor="nome">Nome</label>
+        <label htmlFor="nome">{isOng ? 'Nome da ONG' : 'Nome'}</label>
         <input
           id="nome"
           type="text"
@@ -68,15 +101,9 @@ export default function RegisterPage() {
           required
         />
 
-        <label htmlFor="perfil">Perfil</label>
-        <select id="perfil" value={perfil} onChange={(event) => setPerfil(event.target.value)} required>
-          <option value="doador">Doador</option>
-          <option value="admin">Admin</option>
-        </select>
-
-        {!isAdmin && (
-          <div id="campo_tipo_sanguineo">
-            <label htmlFor="tipo_sanguineo">Tipo sanguíneo</label>
+        {isDoador && (
+          <div>
+            <label htmlFor="tipo_sanguineo">Tipo sanguineo</label>
             <select
               id="tipo_sanguineo"
               value={tipoSanguineo}
@@ -84,22 +111,50 @@ export default function RegisterPage() {
               required
             >
               <option value="">Selecione</option>
-              <option value="A+">A+</option>
-              <option value="A-">A-</option>
-              <option value="B+">B+</option>
-              <option value="B-">B-</option>
-              <option value="AB+">AB+</option>
-              <option value="AB-">AB-</option>
-              <option value="O+">O+</option>
-              <option value="O-">O-</option>
+              {BLOOD_TYPES.map((type) => (
+                <option key={type} value={type}>
+                  {type}
+                </option>
+              ))}
             </select>
           </div>
         )}
 
-        <button type="submit">Cadastrar</button>
+        {isOng && (
+          <div>
+            <label htmlFor="cnpj">CNPJ</label>
+            <input
+              id="cnpj"
+              type="text"
+              value={cnpj}
+              onChange={(event) => setCnpj(event.target.value)}
+              autoComplete="organization"
+              required
+            />
+          </div>
+        )}
+
+        {isAdmin && (
+          <div>
+            <label htmlFor="codigo_admin">Codigo de cadastro admin</label>
+            <input
+              id="codigo_admin"
+              type="password"
+              value={codigoAdmin}
+              onChange={(event) => setCodigoAdmin(event.target.value)}
+              autoComplete="off"
+              required
+            />
+          </div>
+        )}
+
+        <button type="submit">
+          Cadastrar como {ACCOUNT_TYPES.find((type) => type.value === accountType)?.label}
+        </button>
       </form>
+
       <p className="muted">
-        Já tem conta? <Link to="/login">Entrar</Link>.
+        Ja tem conta? <Link to="/login">Entrar</Link>.
       </p>
     </section>
   )

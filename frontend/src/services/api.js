@@ -29,17 +29,31 @@ export function getSession() {
   return apiFetch('/usuarios/session');
 }
 
-export function login(email, senha) {
+export function login(email, senha, perfil) {
   return apiFetch('/usuarios/login', {
+    method: 'POST',
+    body: JSON.stringify({ email, senha, perfil }),
+  });
+}
+
+export function loginOng(email, senha) {
+  return apiFetch('/ong/login', {
     method: 'POST',
     body: JSON.stringify({ email, senha }),
   });
 }
 
-export function register(nome, email, senha, perfil, tipo_sanguineo) {
+export function register(payload) {
   return apiFetch('/usuarios/cadastrar', {
     method: 'POST',
-    body: JSON.stringify({ nome, email, senha, perfil, tipo_sanguineo }),
+    body: JSON.stringify(payload),
+  });
+}
+
+export function registerOng(payload) {
+  return apiFetch('/ong/cadastrar', {
+    method: 'POST',
+    body: JSON.stringify(payload),
   });
 }
 
@@ -61,6 +75,27 @@ export function cancelSubscription(id) {
 
 export function getMyOngs() {
   return apiFetch('/usuarios/minhas-ongs');
+}
+
+export function getOngMembers() {
+  return apiFetch('/ong/membros');
+}
+
+export function getExames() {
+  return apiFetch('/usuarios/exames');
+}
+
+export function createExame(payload) {
+  return apiFetch('/usuarios/exames', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  });
+}
+
+export function cancelExame(id) {
+  return apiFetch(`/usuarios/exames/${id}/cancelar`, {
+    method: 'POST',
+  });
 }
 
 export function getAdminOngs() {

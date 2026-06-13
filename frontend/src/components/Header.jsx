@@ -20,12 +20,20 @@ export default function Header() {
           <>
             {user ? (
               <>
-                <Link to="/home">Home</Link>
-                <Link to="/ongs">ONGs</Link>
-                {user.perfil === 'admin' ? (
-                  <Link to="/admin/ongs">Admin</Link>
+                {user.perfil === 'ong' ? (
+                  <Link to="/ong/painel">Painel ONG</Link>
                 ) : (
-                  <Link to="/minhas-ongs">Minhas ONGs</Link>
+                  <Link to="/home">Home</Link>
+                )}
+                {user.perfil === 'doador' && (
+                  <>
+                    <Link to="/ongs">ONGs</Link>
+                    <Link to="/minhas-ongs">Minhas ONGs</Link>
+                    <Link to="/exames">Exames</Link>
+                  </>
+                )}
+                {user.perfil === 'admin' && (
+                  <Link to="/admin/ongs">Admin</Link>
                 )}
                 <button type="button" className="secondary" onClick={handleLogout}>
                   Sair
