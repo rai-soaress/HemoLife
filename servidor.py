@@ -57,6 +57,7 @@ def criar_servidor():
     }
 
     frontend_origin = os.getenv("FRONTEND_URL", "http://localhost:5173")
+
     cors_origins = [
         frontend_origin,
         "http://127.0.0.1:5173",
@@ -66,7 +67,12 @@ def criar_servidor():
         "http://127.0.0.1:5175",
         "http://localhost:5175",
     ]
-    CORS(app, supports_credentials=True, resources={r"/*": {"origins": cors_origins}})
+
+    CORS(
+        app,
+        supports_credentials=True,
+        resources={r"/*": {"origins": cors_origins}}
+    )
 
     bd.init_app(app)
     login_manager.init_app(app)
@@ -80,11 +86,16 @@ def criar_servidor():
 
     @login_manager.unauthorized_handler
     def unauthorized():
-        return jsonify({"success": False, "message": "Login required"}), 401
+        return jsonify({
+            "success": False,
+            "message": "Login required"
+        }), 401
 
     @app.route('/')
     def inicio():
-        return jsonify({"mensagem": "Backend HemoLife funcionando com React"})
+        return jsonify({
+            "mensagem": "Backend HemoLife funcionando com React"
+        })
 
     @app.route('/api/teste')
     def teste():
@@ -93,7 +104,10 @@ def criar_servidor():
         })
 
     def error_response(message, status):
-        return jsonify({"success": False, "message": message}), status
+        return jsonify({
+            "success": False,
+            "message": message
+        }), status
 
     @app.errorhandler(403)
     def acesso_negado(error):
@@ -106,7 +120,10 @@ def criar_servidor():
     @app.errorhandler(500)
     def erro_interno(error):
         bd.session.rollback()
-        return jsonify({"success": False, "message": "Erro interno do servidor"}), 500
+        return jsonify({
+            "success": False,
+            "message": "Erro interno do servidor"
+        }), 500
 
     from blueprints.usuario_blueprint import usuario_bp
     app.register_blueprint(usuario_bp, url_prefix='/usuarios')
@@ -120,14 +137,16 @@ def criar_servidor():
     return app
 
 
+app = criar_servidor()
+
+with app.app_context():
+    bd.create_all()
+
+
+
 if __name__ == '__main__':
-    app = criar_servidor()
-
-    with app.app_context():
-        bd.create_all()
-
     app.run(
         host='0.0.0.0',
-        port=5000,
-        debug=os.getenv("FLASK_DEBUG", "1") == "1"
+        port=int(os.getenv("PORT", 5000)),
+        debug=os.getenv("FLASK_DEBUG", "0") == "1"
     )
